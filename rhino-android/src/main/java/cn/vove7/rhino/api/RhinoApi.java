@@ -14,6 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import cn.vove7.rhino.common.GcCollector;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 
 /**
  * Created by 17719247306 on 2018/8/28
@@ -55,25 +58,18 @@ public class RhinoApi extends AbsApi {
     //}
 
     public static void onException(Throwable e) {
-        notifyOutput(OnPrint.ERROR, e.getMessage());
+        notifyOutput(Log.ERROR, e.getMessage());
     }
 
-    public interface OnPrint {
-        int ERROR = Log.ERROR;
-        int LOG = Log.INFO;
+    private static final Set<Function2<Integer, String, Unit>> printList = new HashSet<>();
 
-        void onPrint(int level, String msg);
-    }
-
-    private static final Set<OnPrint> printList = new HashSet<>();
-
-    public static void regPrint(OnPrint print) {
+    public static void regPrint(Function2<Integer, String, Unit> print) {
         synchronized (printList) {
             printList.add(print);
         }
     }
 
-    public static void unregPrint(OnPrint print) {
+    public static void unregPrint(Function2<Integer, String, Unit> print) {
         synchronized (printList) {
             printList.remove(print);
         }
@@ -81,8 +77,8 @@ public class RhinoApi extends AbsApi {
 
     private static void notifyOutput(int l, String o) {
         synchronized (printList) {
-            for (OnPrint p : printList) {
-                p.onPrint(l, o);
+            for (Function2<Integer, String, Unit> p : printList) {
+                p.invoke(l, o);
             }
         }
     }
@@ -125,6 +121,6 @@ public class RhinoApi extends AbsApi {
     }
 
     public static void doLog(String m) {
-        notifyOutput(OnPrint.LOG, m);
+        notifyOutput(Log.INFO, m);
     }
 }

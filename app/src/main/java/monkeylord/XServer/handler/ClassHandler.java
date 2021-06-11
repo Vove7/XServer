@@ -28,7 +28,10 @@ public class ClassHandler {
         for (Method method : clz.getDeclaredMethods()) {
             methodDescriptions.add(Utils.MethodDescription(method));
         }
-        for (Field field : clz.getFields()) {
+        for (Field field : clz.getDeclaredFields()) {
+            if(!field.isAccessible()) {
+                field.setAccessible(true);
+            }
             fieldDescriptions.add(Utils.FieldDescription(field));
         }
         detail.put("methodList", methodDescriptions);

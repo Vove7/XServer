@@ -6,11 +6,16 @@ android {
     buildToolsVersion '26.0.3'
     defaultConfig {
         applicationId 'monkeylord.xserver'
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 2
         versionName "0.7.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "x86", "armeabi-v7a"
+        }
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,6 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -31,7 +37,9 @@ dependencies {
     implementation files('lib/freemarker.jar')
     implementation files('lib/openbeans.jar')
     implementation project(":rhino-android")
+    implementation project(":andro-lua")
 
+    implementation 'com.android.support:multidex:1.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 }

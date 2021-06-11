@@ -18,8 +18,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
+
+import kotlin.io.ByteStreamsKt;
 
 public class MainActivity extends Activity {
     SharedPreferences sp;
@@ -33,7 +38,7 @@ public class MainActivity extends Activity {
         return false;
     }
 
-    public void makeWorldReadable(){
+    public void makeWorldReadable() {
         new File("/data/data/" + XServer.class.getPackage().getName().toLowerCase()).setExecutable(true, false);
         new File("/data/data/" + XServer.class.getPackage().getName().toLowerCase() + "/shared_prefs/XServer.xml").setReadable(true, false);
     }
@@ -41,13 +46,26 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d("DD", "onCreate  ----> " + getApplicationInfo().nativeLibraryDir);
+
+        //copy lib -> sdcard
+        String libName = "libluajava.so";
+        //todo 动态支持架构
+        try {
+            File f = new File("/sdcard/" + libName);
+            ByteStreamsKt.copyTo(getAssets().open("lua_lib/armeabi-v7a/libluajava.so"), new FileOutputStream(f), 10240);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         LinearLayout layout = new LinearLayout(this);
         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.setOrientation(LinearLayout.VERTICAL);
         super.setContentView(layout, param);
-        sp = getSharedPreferences("XServer", isModuleActive()?MODE_WORLD_READABLE:MODE_PRIVATE);
+        sp = getSharedPreferences("XServer", isModuleActive() ? MODE_WORLD_READABLE : MODE_PRIVATE);
         makeWorldReadable();
         hookee = sp.getString("targetApp", "com.");
         //isReg = sp.getBoolean("isReg", false);
@@ -164,10 +182,10 @@ public class MainActivity extends Activity {
             iv_app_icon.setLayoutParams(new ViewGroup.LayoutParams(80, 80));
             //iv_app_icon.setAdjustViewBounds(true);
             iv_app_icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            iv_app_icon.setPadding(5,5,5,5);
+            iv_app_icon.setPadding(5, 5, 5, 5);
             linearLayout.addView(iv_app_icon);
             //创建文本描述
-            LinearLayout textLayout=new LinearLayout(context);
+            LinearLayout textLayout = new LinearLayout(context);
             textLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             textLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -178,7 +196,7 @@ public class MainActivity extends Activity {
 
             TextView app_package_name = new TextView(context);
             app_package_name.setPadding(5, 3, 5, 5);
-            app_package_name.setText( packageInfo.get(i).packageName);
+            app_package_name.setText(packageInfo.get(i).packageName);
 
             textLayout.addView(app_display_name);
             textLayout.addView(app_package_name);
